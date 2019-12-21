@@ -1,6 +1,8 @@
 package com.ct.websocket.server;
 
+import com.ct.websocket.entity.dto.DeviceListDTO;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.websocket.*;
@@ -18,11 +20,13 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 @Slf4j
 public class WebSocketServer {
+//    @Autowired
+//    DeviceService deviceService;
 
     //静态变量，用来记录当前在线连接数。应该把它设计成线程安全的。
     private static int onlineCount = 0;
     //concurrent包的线程安全Set，用来存放每个客户端对应的MyWebSocket对象。
-    private static ConcurrentHashMap<String , WebSocketServer> webSocketMap = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<String , WebSocketServer> webSocketMap = new ConcurrentHashMap<>();
 
     //与某个客户端的连接会话，需要通过它来给客户端发送数据
     private Session session;
@@ -34,11 +38,13 @@ public class WebSocketServer {
     @OnOpen
     public void onOpen(Session session, @PathParam("sid") String sid) {
         this.session = session;
+        this.sid=sid;
         webSocketMap.put(sid , this);     //加入Map中
         addOnlineCount();           //在线数加1
         log.info("有新窗口开始监听:"+sid+",当前在线人数为" + getOnlineCount());
-        this.sid=sid;
         try {
+//            DeviceListDTO deviceListDTO = deviceService.getCurrentRoleAllDeviceStatus();
+//            sendMessage(deviceListDTO.toString());
             sendMessage("连接成功");
         } catch (IOException e) {
             log.error("websocket IO异常");
