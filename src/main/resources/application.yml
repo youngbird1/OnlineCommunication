@@ -1,0 +1,27 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: websocket
+
+  datasource:
+    url: jdbc:mysql://10.206.142.160:3306/iot_device_manage?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&useSSL=false
+    username: wlw
+    password: Test%123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  redis:
+    host: 10.206.142.160
+    password: Test%123
+    port: 6379
+    database: 0
+
+mybatis-plus:
+  mapper-locations:
+    classpath*:mapper/*.xml, classpath*:mapper/*Mapper.xml
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+
