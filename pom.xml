@@ -16,6 +16,7 @@
 
     <properties>
         <java.version>1.8</java.version>
+        <jackson.version>2.8.5</jackson.version>
     </properties>
 
     <dependencies>
@@ -64,7 +65,7 @@
             <version>3.1.2</version>
         </dependency>
 
-        <!--阿里的json-->
+        <!--&lt;!&ndash;阿里的json&ndash;&gt;-->
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
