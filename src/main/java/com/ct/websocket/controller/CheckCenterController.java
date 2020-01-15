@@ -1,7 +1,7 @@
 package com.ct.websocket.controller;
 
 import com.ct.websocket.entity.ApiReturnObject;
-import com.ct.websocket.server.WebSocketServer;
+import com.ct.websocket.service.WebSocketServer;
 import com.ct.websocket.utils.ApiReturnUtil;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -33,8 +33,6 @@ public class CheckCenterController {
         }
         return ApiReturnUtil.success("cid:" + cid);
     }
-
-
 //
 //    //推送数据接口
 //    @GetMapping("/socket/push")

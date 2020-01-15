@@ -1,10 +1,6 @@
-package com.ct.websocket.server;
+package com.ct.websocket.service;
 
-import com.ct.websocket.common.thread.PushScheduleWork;
-import com.ct.websocket.entity.dto.DeviceListDTO;
-import com.ct.websocket.server.impl.DeviceServiceImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -13,22 +9,18 @@ import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
 
 
 /**
  * @auther:chent69
  * @date: 2019/12/16-16 :23
  */
-@ServerEndpoint("/websocket/{sid}")
+@ServerEndpoint("/websocket/{userId}")
 @Component
 @Slf4j
 public class WebSocketServer {
-    @Autowired
-    private DeviceServiceImpl deviceService;
-    private static WebSocketServer webSocketServer;
 
-    private PushScheduleWork pushScheduleWork;
+    private static WebSocketServer webSocketServer;
 
     //通过@PostConstruct实现初始化bean之前进行的操作
     @PostConstruct
@@ -50,16 +42,16 @@ public class WebSocketServer {
     /**
      * 连接建立成功调用的方法*/
     @OnOpen
-    public void onOpen(Session session, @PathParam("sid") String sid) {
+    public void onOpen(Session session, @PathParam("userId") String userId) {
         this.session = session;
-        this.sid=sid;
-        webSocketMap.put(sid , this);     //加入Map中
-        addOnlineCount();           //在线数加1
+        this.sid = userId;
+        //加入Map中
+        webSocketMap.put(sid , this);
+        //在线数加1
+        addOnlineCount();
         log.info("有新窗口开始监听:{},当前在线人数为{}",sid ,getOnlineCount());
         try {
             sendMessage("连接成功");
-            pushScheduleWork = new PushScheduleWork(webSocketServer.deviceService , sid);
-            pushScheduleWork.start();
         } catch (IOException e) {
             log.error("websocket IO异常");
         }
@@ -70,9 +62,10 @@ public class WebSocketServer {
      */
     @OnClose
     public void onClose() {
-        webSocketMap.remove(this.sid);  //从Map中删除
-        pushScheduleWork.stop();
-        subOnlineCount();           //在线数减1
+        //从Map中删除
+        webSocketMap.remove(this.sid);
+        //在线数减1
+        subOnlineCount();
         log.info("有一连接关闭！当前在线人数为{}" , getOnlineCount());
     }
 

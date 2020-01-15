@@ -1,21 +1,23 @@
 server:
   port: 8083
+  servlet:
+    context-path: /websocket
 
 spring:
   application:
     name: websocket
 
   datasource:
-    url: jdbc:mysql://10.206.142.160:3306/iot_device_manage?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&useSSL=false
-    username: wlw
-    password: Test%123
+    url: jdbc:mysql://10.206.148.20:3306/intelligent_community?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&useSSL=false
+    username: root
+    password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
 
-  redis:
-    host: 10.206.142.160
-    password: Test%123
-    port: 6379
-    database: 0
+#  redis:
+#    host: 10.206.142.160
+#    password: Test%123
+#    port: 6379
+#    database: 0
 
 mybatis-plus:
   mapper-locations:
