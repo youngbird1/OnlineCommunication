@@ -35,7 +35,7 @@ public class WebsocketCommunicationImpl implements IWebsocketCommunication {
         //与数据库对应的消息实体
         OnlineCommunicationMessage messageDO = new OnlineCommunicationMessage();
         BeanUtils.copyProperties(msg , messageDO);
-        messageDO.setUkMessageId(messageId);
+        messageDO.setMessageId(messageId);
 
         msg.setIsDelete(0);
         msg.setIsRead(0);

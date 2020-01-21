@@ -42,7 +42,7 @@ public class OnlineCommunicationMessage implements Serializable {
     /**
      * 消息标示(唯一)
      */
-    private String ukMessageId;
+    private String messageId;
 
     /**
      * 消息体

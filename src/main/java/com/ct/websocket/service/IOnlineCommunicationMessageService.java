@@ -12,5 +12,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2020-01-15
  */
 public interface IOnlineCommunicationMessageService extends IService<OnlineCommunicationMessage> {
+    boolean saveMessage(OnlineCommunicationMessage communicationMessage);
 
 }

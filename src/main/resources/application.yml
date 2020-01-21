@@ -13,6 +13,10 @@ spring:
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 100MB
 #  redis:
 #    host: 10.206.142.160
 #    password: Test%123
@@ -25,5 +29,13 @@ mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+fdfs:
+  so-timeout: 1500 #socket连接超时时长
+  connect-timeout: 600 #连接tracker服务器超时时长
+  thumb-image: #缩略图生成参数，可选
+    width: 150
+    height: 150
+  tracker-list: 10.206.142.205:22122
 
 

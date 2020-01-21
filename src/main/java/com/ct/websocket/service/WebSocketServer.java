@@ -1,14 +1,27 @@
 package com.ct.websocket.service;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.ct.websocket.common.Exception.MessageSaveFailedException;
+import com.ct.websocket.entity.OnlineCommunicationMessage;
+import com.ct.websocket.entity.chat.ACK;
+import com.ct.websocket.entity.chat.Message;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 
 
 /**
@@ -21,6 +34,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WebSocketServer {
 
     private static WebSocketServer webSocketServer;
+    private  ExecutorService executorService;
+    @Resource
+    private IOnlineCommunicationMessageService messageService;
 
     //通过@PostConstruct实现初始化bean之前进行的操作
     @PostConstruct
@@ -28,9 +44,12 @@ public class WebSocketServer {
         webSocketServer = this;
 //        // 初使化时将已静态化的testService实例化
 //        webSocketServer.deviceService = this.deviceService;
+        executorService = Executors.newCachedThreadPool();
+        JSON.DEFFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
     }
     //静态变量，用来记录当前在线连接数。应该把它设计成线程安全的。
     private static int onlineCount = 0;
+
     //concurrent包的线程安全HashMap，用来存放每个客户端对应的WebSocket对象。
     public static ConcurrentHashMap<String , WebSocketServer> webSocketMap = new ConcurrentHashMap<>();
 
@@ -72,17 +91,44 @@ public class WebSocketServer {
     /**
      * 收到客户端消息后调用的方法
      *
-     * @param message 客户端发送过来的消息*/
+     * @param msg 客户端发送过来的消息*/
     @OnMessage
-    public void onMessage(String message) {
-        log.info("收到来自窗口{}的信息:{}",sid ,message);
-        //群发消息
-        for (WebSocketServer item : webSocketMap.values()) {
-            try {
-                item.sendMessage(message);
-            } catch (IOException e) {
-                e.printStackTrace();
+    public void onMessage(String msg) {
+        log.info("收到来自窗口{}的信息:{}",sid ,msg);
+        Message message = JSON.parseObject(msg,Message.class);
+
+        String to = message.getTo();
+        //转发消息,将to字段设为空字符串 减少传输量
+        message.setTo("");
+        if(StringUtils.isEmpty(to)){
+            //todo app发送的第一条消息，随机分配物业客服进行处理
+            to = "1001002";
+        }
+        WebSocketServer webSocketServer = null;
+        try {
+            webSocketServer = webSocketMap.get(to);
+            if(webSocketServer != null){
+                //转发消息至目的地
+                webSocketServer.
+                        sendMessage(JSONObject.toJSONString(message, SerializerFeature.WriteDateUseDateFormat));
+                //反馈消息接收状态给发送者
+                sendMessage(JSONObject.toJSONString(new ACK(to,1, LocalDateTime.now()),
+                            SerializerFeature.WriteDateUseDateFormat));
+            }else{
+                //反馈消息接收状态给发送者
+                sendMessage(JSONObject.toJSONString(new ACK(to,0, LocalDateTime.now()),
+                            SerializerFeature.WriteDateUseDateFormat));
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //todo 保存消息至数据库
+        {
+//        String messageId = getMessageId();
+//        if(webSocketServer != null){
+//            msg.setIsRead(1);
+//        }
+//        executorService.execute(()->saveMessage(msg));
         }
     }
 
@@ -103,30 +149,6 @@ public class WebSocketServer {
         this.session.getBasicRemote().sendText(message);
     }
 
-
-    /**
-     * 群发自定义消息
-     * */
-    public static void sendInfo(String message,@PathParam("sid") String sid) throws IOException {
-        log.info("推送消息到窗口"+sid+"，推送内容:"+message);
-        if(sid.equals("all")){
-            for (WebSocketServer item : webSocketMap.values()) {
-                try {
-                    //这里可以设定只推送给这个sid的，为null则全部推送
-                    item.sendMessage(message);
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }else {
-            WebSocketServer item = webSocketMap.get(sid);
-            if(item != null){
-                item.sendMessage(message);
-            }
-        }
-    }
-
     private static synchronized int getOnlineCount() {
         return onlineCount;
     }
@@ -139,4 +161,13 @@ public class WebSocketServer {
         WebSocketServer.onlineCount--;
     }
 
+    private void saveMessage(OnlineCommunicationMessage communicationMessage){
+        if(!webSocketServer.messageService.save(communicationMessage)){
+            try{
+                throw new MessageSaveFailedException("Message save to mysql failed!");
+            }catch (MessageSaveFailedException e){
+                e.printStackTrace();
+            }
+        }
+    }
 }

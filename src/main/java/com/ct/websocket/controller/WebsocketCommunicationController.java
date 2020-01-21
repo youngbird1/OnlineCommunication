@@ -4,14 +4,16 @@ import com.ct.websocket.common.util.R;
 import com.ct.websocket.common.util.validateUtils.ValidMessage;
 import com.ct.websocket.entity.dto.Message;
 import com.ct.websocket.service.IWebsocketCommunication;
+import com.ct.websocket.service.WebSocketServer;
+import jdk.internal.util.xml.impl.Input;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.*;
+import java.util.Map;
 
 /**
  * @auther:chent69

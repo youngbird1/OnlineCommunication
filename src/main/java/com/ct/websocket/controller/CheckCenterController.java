@@ -22,27 +22,4 @@ public class CheckCenterController {
         mav.addObject("cid", cid);
         return mav;
     }
-    //推送数据接口
-    @RequestMapping("/socket/push/{cid}")
-    public ApiReturnObject pushToWeb(@PathVariable String cid, @RequestParam String message) {
-        try {
-            WebSocketServer.sendInfo(message,cid);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return ApiReturnUtil.error("cid:" + cid+"#"+e.getMessage());
-        }
-        return ApiReturnUtil.success("cid:" + cid);
-    }
-//
-//    //推送数据接口
-//    @GetMapping("/socket/push")
-//    public ApiReturnObject pushToAllWeb(@PathVariable String cid, @RequestParam String message) {
-//        try {
-//            WebSocketServer.sendInfo(message,cid);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return ApiReturnUtil.error("cid:" + cid+"#"+e.getMessage());
-//        }
-//        return ApiReturnUtil.success("cid:" + cid);
-//    }
 }
