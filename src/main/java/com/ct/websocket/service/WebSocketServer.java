@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.ct.websocket.common.Exception.MessageSaveFailedException;
+import com.ct.websocket.common.util.SensitiveWordUtil;
 import com.ct.websocket.entity.OnlineCommunicationMessage;
 import com.ct.websocket.entity.chat.ACK;
 import com.ct.websocket.entity.chat.Message;
@@ -96,9 +97,13 @@ public class WebSocketServer {
     public void onMessage(String msg) {
         log.info("收到来自窗口{}的信息:{}",sid ,msg);
         Message message = JSON.parseObject(msg,Message.class);
+        //文本消息脱敏
+        String text = message.getText();
+        text = SensitiveWordUtil.replaceSensitiveWord(text,SensitiveWordUtil.maxMatchType,"*");
+        message.setText(text);
 
         String to = message.getTo();
-        //转发消息,将to字段设为空字符串 减少传输量
+        //转发消息,将to字段设为空字符串以减少传输量
         message.setTo("");
         if(StringUtils.isEmpty(to)){
             //todo app发送的第一条消息，随机分配物业客服进行处理

@@ -38,4 +38,7 @@ fdfs:
     height: 150
   tracker-list: 10.206.142.205:22122
 
+sensitiveword:
+  fileurl: C:/Users/chent69/Desktop/dictionary.txt
+
 
